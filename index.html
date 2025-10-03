@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultimate Flex Clicker with Autoclicker</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: linear-gradient(-45deg, #ff4e50, #fc913a, #f9d423, #eae374);
+      background-size: 400% 400%;
+      animation: gradientBG 10s ease infinite;
+    }
+
+    @keyframes gradientBG {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+
+    h1 {
+      font-size: 3em;
+      color: white;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
+      margin-bottom: 20px;
+      animation: glow 2s infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #fff, 0 0 20px #ff6, 0 0 30px #f06; }
+      to { text-shadow: 0 0 20px #0ff, 0 0 30px #09f, 0 0 40px #f0f; }
+    }
+
+    #clicker-btn {
+      background: linear-gradient(135deg, #4CAF50, #2e7d32);
+      color: white;
+      border: none;
+      padding: 25px 50px;
+      font-size: 2em;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0px 10px 20px rgba(0,0,0,0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    #clicker-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0px 15px 30px rgba(0,0,0,0.6);
+    }
+
+    #score, #power, #passive, #autoclicker {
+      margin-top: 15px;
+      font-size: 1.8em;
+      color: white;
+      text-shadow: 1px 1px 6px rgba(0,0,0,0.7);
+    }
+
+    .floating-text {
+      position: absolute;
+      animation: floatUp 1s ease-out;
+      font-size: 1.5em;
+      color: yellow;
+      font-weight: bold;
+    }
+
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-80px); }
+    }
+
+    .shop {
+      margin-top: 30px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+      width: 320px;
+    }
+
+    .upgrade-btn {
+      background: linear-gradient(135deg, #2196F3, #0d47a1);
+      color: white;
+      border: none;
+      padding: 15px 20px;
+      font-size: 1.1em;
+      border-radius: 15px;
+      cursor: pointer;
+      box-shadow: 0px 6px rgba(0,0,0,0.5);
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .upgrade-btn:hover {
+      transform: scale(1.05);
+      background: linear-gradient(135deg, #42a5f5, #1565c0);
+    }
+
+    .upgrade-btn:disabled {
+      background: #777;
+      cursor: not-allowed;
+      transform: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>💎 Ultimate Flex Clicker 💎</h1>
+  <button id="clicker-btn">CLICK ME!</button>
+  <div id="score">Score: 0</div>
+  <div id="power">Power: 1 per click</div>
+  <div id="passive">Passive: 0 per second</div>
+  <div id="autoclicker">Autoclickers: 0 clicks/sec</div>
+
+  <div class="shop">
+    <button class="upgrade-btn" id="buy-pencil">✏️ Pencil (+1 power) - Cost: 20</button>
+    <button class="upgrade-btn" id="buy-book">📖 Book (+5 power) - Cost: 100</button>
+    <button class="upgrade-btn" id="buy-calculator">🧮 Calculator (+20 power) - Cost: 500</button>
+    <button class="upgrade-btn" id="buy-laptop">💻 Laptop (+50 passive/sec) - Cost: 2000</button>
+    <button class="upgrade-btn" id="buy-teacher">👩‍🏫 Teacher (+200 passive/sec) - Cost: 10000</button>
+    <button class="upgrade-btn" id="buy-autoclicker">🤖 Autoclicker (+1 click/sec) - Cost: 5000</button>
+  </div>
+
+  <script>
+    let score = 0;
+    let power = 1;
+    let passive = 0;
+    let autoclickers = 0;
+    const scoreDisplay = document.getElementById('score');
+    const powerDisplay = document.getElementById('power');
+    const passiveDisplay = document.getElementById('passive');
+    const autoclickerDisplay = document.getElementById('autoclicker');
+    const clickerBtn = document.getElementById('clicker-btn');
+
+    const upgrades = [
+      { id: 'buy-pencil', cost: 20, boost: 1, type: 'power' },
+      { id: 'buy-book', cost: 100, boost: 5, type: 'power' },
+      { id: 'buy-calculator', cost: 500, boost: 20, type: 'power' },
+      { id: 'buy-laptop', cost: 2000, boost: 50, type: 'passive' },
+      { id: 'buy-teacher', cost: 10000, boost: 200, type: 'passive' },
+      { id: 'buy-autoclicker', cost: 5000, boost: 1, type: 'autoclicker' }
+    ];
+
+    clickerBtn.addEventListener('click', (e) => {
+      score += power;
+      updateDisplay();
+
+      const floatingText = document.createElement('div');
+      floatingText.textContent = "+" + power;
+      floatingText.classList.add('floating-text');
+      document.body.appendChild(floatingText);
+
+      floatingText.style.left = e.pageX + 'px';
+      floatingText.style.top = e.pageY + 'px';
+
+      setTimeout(() => floatingText.remove(), 1000);
+    });
+
+    upgrades.forEach(upg => {
+      const btn = document.getElementById(upg.id);
+      btn.addEventListener('click', () => {
+        if (score >= upg.cost) {
+          score -= upg.cost;
+          if (upg.type === 'power') power += upg.boost;
+          else if (upg.type === 'passive') passive += upg.boost;
+          else if (upg.type === 'autoclicker') autoclickers += upg.boost;
+          upg.cost = Math.floor(upg.cost * 1.5);
+          btn.textContent = btn.textContent.split('-')[0] + "- Cost: " + upg.cost;
+          updateDisplay();
+        }
+      });
+    });
+
+    function updateDisplay() {
+      scoreDisplay.textContent = "Score: " + score;
+      powerDisplay.textContent = "Power: " + power + " per click";
+      passiveDisplay.textContent = "Passive: " + passive + " per second";
+      autoclickerDisplay.textContent = "Autoclickers: " + autoclickers + " clicks/sec";
+    }
+
+    // Passive points per second
+    setInterval(() => {
+      score += passive;
+      updateDisplay();
+    }, 1000);
+
+    // Autoclickers simulate clicks
+    setInterval(() => {
+      if (autoclickers > 0) {
+        score += power * autoclickers;
+        updateDisplay();
+      }
+    }, 1000);
+  </script>
+
+</body>
+</html>
